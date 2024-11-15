@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Diagnostics.Eventing.Reader;
 
 public enum Token_Class
 {
@@ -162,19 +163,34 @@ namespace TINY_Compiler
                 {
                     i++;
                     CurrentChar = SourceCode[i];
+                    bool isStr = true;
 
                     while (CurrentChar != '\"')
                     {
                         CurrentLexeme += CurrentChar.ToString();
                         i++;
                         CurrentChar = SourceCode[i];
+
+                        if(CurrentChar == '\n')
+                        {
+                            isStr = false;
+                            break;
+                        }
                     }
 
-                    CurrentLexeme += '\"';
-                    Token Tok = new Token();
-                    Tok.lex = CurrentLexeme;
-                    Tok.token_type = Token_Class.Str;
-                    Tokens.Add(Tok);
+                    if (isStr)
+                    {
+                        CurrentLexeme += '\"';
+                        Token Tok = new Token();
+                        Tok.lex = CurrentLexeme;
+                        Tok.token_type = Token_Class.Str;
+                        Tokens.Add(Tok);
+
+                    }
+                    else
+                    {
+                        Errors.Error_List.Add(CurrentLexeme);
+                    }
                     
                 }
                 else
