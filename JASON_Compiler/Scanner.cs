@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Diagnostics.Eventing.Reader;
+using System.ComponentModel;
 
 public enum Token_Class
 {
@@ -69,7 +70,7 @@ namespace TINY_Compiler
 
         public void StartScanning(string SourceCode)
         {
-            SourceCode += ' ';
+            SourceCode += "     ";
             Tokens.Clear();
             Errors.Error_List.Clear();
 
@@ -131,6 +132,8 @@ namespace TINY_Compiler
                     i--;
                 }
 
+
+
                 else if (CurrentChar == '/')
                 {
                     char NextChar = SourceCode[i + 1];
@@ -139,6 +142,13 @@ namespace TINY_Compiler
                         do
                         {
                             i++;
+
+                            if (i + 1 == SourceCode.Length)
+                            {
+                                Errors.Error_List.Add("Unclosed Comment!");
+                                break;
+                            }
+
                             CurrentChar = SourceCode[i];
                             NextChar = SourceCode[i + 1];
 
