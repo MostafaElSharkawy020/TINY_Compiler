@@ -68,7 +68,7 @@ namespace TINY_Compiler
 
         public void StartScanning(string SourceCode)
         {
-            SourceCode += ' '; //I will see this later 
+            SourceCode += ' ';
             Tokens.Clear();
             Errors.Error_List.Clear();
 
@@ -89,7 +89,9 @@ namespace TINY_Compiler
 
                     while (true)
                     {
-                        if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\t' || Operators.ContainsKey(CurrentChar.ToString()))
+                        string CurrentAndNextChars = SourceCode[i].ToString() + SourceCode[i + 1].ToString();
+                        if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\t' || Operators.ContainsKey(CurrentChar.ToString())
+                            ||Operators.ContainsKey(CurrentAndNextChars))
                         {
                             break;
                         }
@@ -139,9 +141,13 @@ namespace TINY_Compiler
                             CurrentChar = SourceCode[i];
                             NextChar = SourceCode[i + 1];
 
-                        } while (CurrentChar != '*' && NextChar != '/');
+                        } while (CurrentChar != '*' || NextChar != '/');
 
-                        i += 1;
+                        i++;
+                    }
+                    else
+                    {
+                        FindTokenClass(CurrentLexeme);
                     }
 
                 }
