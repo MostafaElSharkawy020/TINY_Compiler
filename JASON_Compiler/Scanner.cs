@@ -16,7 +16,7 @@ public enum Token_Class
     GreaterThanOp, NotEqualOp, PlusOp, MinusOp, MultiplyOp, DivideOp, AssigmentOp,
     AndOp, OrOp, LeftBracesOp, RightBracesOp,
 
-    Idenifier, Constant, Str
+    Idenifier, Number, Str
 }
 
 namespace TINY_Compiler
@@ -70,7 +70,7 @@ namespace TINY_Compiler
 
         public void StartScanning(string SourceCode)
         {
-            SourceCode += "     ";
+            SourceCode += "   ";
             Tokens.Clear();
             Errors.Error_List.Clear();
 
@@ -112,13 +112,21 @@ namespace TINY_Compiler
                 {
                     i++;
                     CurrentChar = SourceCode[i];
+                    
 
                     while (true)
                     {
-                        if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\t' || Operators.ContainsKey(CurrentChar.ToString()))
+                        
+                        if (i + 1 == SourceCode.Length)
                         {
                             break;
                         }
+
+                        string CurrentAndNextChars = SourceCode[i].ToString() + SourceCode[i + 1].ToString();
+
+                        if(CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\t' || Operators.ContainsKey(CurrentChar.ToString())
+                            || Operators.ContainsKey(CurrentAndNextChars))
+                            { break; }
 
                         CurrentLexeme += CurrentChar.ToString();
                         i++;
@@ -238,9 +246,9 @@ namespace TINY_Compiler
                 Tokens.Add(Tok);
             }
             //Is it a Constant?
-            else if (isConstant(Lex))
+            else if (isNumber(Lex))
             {
-                Tok.token_type = Token_Class.Constant;
+                Tok.token_type = Token_Class.Number;
                 Tokens.Add(Tok);
             }
 
@@ -261,7 +269,7 @@ namespace TINY_Compiler
 
             return regex.IsMatch(lex);
         }
-        bool isConstant(string lex)
+        bool isNumber(string lex)
         {
             // Check if the lex is a constant (Number) or not.
             Regex regex = new Regex(@"^\d+(\.(\d+))?$", RegexOptions.Compiled);

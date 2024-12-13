@@ -20,19 +20,17 @@ namespace TINY_Compiler
         private void button1_Click(object sender, EventArgs e)
         {
             textBox2.Clear();
-            //string Code=textBox1.Text.ToLower();
-            string Code = textBox1.Text;
+            string Code=textBox1.Text.ToLower();
             TINY_Compiler.Start_Compiling(Code);
             PrintTokens();
-            //PrintLexemes();
-
+            treeView1.Nodes.Add(Parser.PrintParseTree(TINY_Compiler.treeroot));
             PrintErrors();
         }
         void PrintTokens()
         {
-            for (int i = 0; i < TINY_Compiler.Jason_Scanner.Tokens.Count; i++)
+            for (int i = 0; i < TINY_Compiler.TINY_Scanner.Tokens.Count; i++)
             {
-               dataGridView1.Rows.Add(TINY_Compiler.Jason_Scanner.Tokens.ElementAt(i).lex, TINY_Compiler.Jason_Scanner.Tokens.ElementAt(i).token_type);
+               dataGridView1.Rows.Add(TINY_Compiler.TINY_Scanner.Tokens.ElementAt(i).lex, TINY_Compiler.TINY_Scanner.Tokens.ElementAt(i).token_type);
             }
         }
 
@@ -41,7 +39,6 @@ namespace TINY_Compiler
             for(int i=0; i<Errors.Error_List.Count; i++)
             {
                 textBox2.Text += Errors.Error_List[i];
-                textBox2.Text += "\r\n";
             }
         }
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -49,28 +46,15 @@ namespace TINY_Compiler
 
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
-            dataGridView1.Rows.Clear();
+            textBox1.Text = "";
+            textBox2.Text = "";
             TINY_Compiler.TokenStream.Clear();
+            dataGridView1.Rows.Clear();
+            treeView1.Nodes.Clear();
+            Errors.Error_List.Clear();
         }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-        /*  void PrintLexemes()
-{
-for (int i = 0; i < JASON_Compiler.Lexemes.Count; i++)
-{
-textBox2.Text += JASON_Compiler.Lexemes.ElementAt(i);
-textBox2.Text += Environment.NewLine;
-}
-}*/
+        
     }
 }
