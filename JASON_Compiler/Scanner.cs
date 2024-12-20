@@ -10,7 +10,7 @@ using System.ComponentModel;
 public enum Token_Class
 {
     End, Else, If, Read, Then, Until, Write,
-    Int, Float, String, Repeat, ElseIf, Return, Endl,
+    Int, Float, String, Repeat, ElseIf, Return, Endl,Main,
 
     Semicolon, Comma, LParanthesis, RParanthesis, EqualOp, LessThanOp,
     GreaterThanOp, NotEqualOp, PlusOp, MinusOp, MultiplyOp, DivideOp, AssigmentOp,
@@ -39,6 +39,7 @@ namespace TINY_Compiler
             ReservedWords.Add("else", Token_Class.Else);
             ReservedWords.Add("if", Token_Class.If);
             ReservedWords.Add("read", Token_Class.Read);
+            ReservedWords.Add("write", Token_Class.Write);
             ReservedWords.Add("then", Token_Class.Then);
             ReservedWords.Add("until", Token_Class.Until);
             ReservedWords.Add("int", Token_Class.Int);
@@ -48,6 +49,7 @@ namespace TINY_Compiler
             ReservedWords.Add("elseif", Token_Class.ElseIf);
             ReservedWords.Add("return", Token_Class.Return);
             ReservedWords.Add("endl", Token_Class.Endl);
+            ReservedWords.Add("main", Token_Class.Main);
 
             Operators.Add(";", Token_Class.Semicolon);
             Operators.Add(",", Token_Class.Comma);
