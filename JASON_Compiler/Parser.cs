@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace TINY_Compiler
 
         List<Node> Function_Statement_List;
         List<Node> Parameter_List_List;
-        List<Node> Statements_List;
+        //List<Node> Statements_List;
         List<Node> Condition_Statement_List;
         List<Node> Declaration_L_List;
         List<Node> Arithmetic_Operation_List;
@@ -38,7 +39,7 @@ namespace TINY_Compiler
 
             Function_Statement_List = new List<Node>();
             Parameter_List_List = new List<Node>();
-            Statements_List = new List<Node>();
+            //Statements_List = new List<Node>();
             Condition_Statement_List = new List<Node>();
             Declaration_L_List = new List<Node>();
             Arithmetic_Operation_List = new List<Node>();
@@ -96,8 +97,9 @@ namespace TINY_Compiler
         Node Function_Body()
         {
             Node functionBody = new Node("Function_Body");
+            List<Node> Statements_List = new List<Node>();
             functionBody.Children.Add(match(Token_Class.LeftBracesOp));
-            functionBody.Children.Add(Statements());
+            functionBody.Children.Add(Statements(Statements_List));
             functionBody.Children.Add(Return_Statement());
             functionBody.Children.Add(match(Token_Class.RightBracesOp));
             return functionBody;
@@ -163,20 +165,20 @@ namespace TINY_Compiler
             return functionName;
         }
 
-        Node Statements() 
+        Node Statements(List<Node> Statements_List) 
         {
             Node statements = new Node("Statements");
-            Statements_List.Clear();
+            //Statements_List.Clear();
 
             statements.Children.Add(Statement());
             
-            if (Statements_Dash())
+            if (Statements_Dash(Statements_List))
                 statements.Children.AddRange(Statements_List);
             
             return statements;
         }
 
-        bool Statements_Dash()
+        bool Statements_Dash(List<Node> Statements_List)
         {
             if(IsvalidToken(Token_Class.Repeat) || IsvalidToken(Token_Class.If)
                 ||IsvalidToken(Token_Class.Read)|| IsvalidToken(Token_Class.Write)
@@ -184,7 +186,7 @@ namespace TINY_Compiler
                     || IsvalidToken(Token_Class.Idenifier))
             {
                 Statements_List.Add(Statement());
-                Statements_Dash();
+                Statements_Dash(Statements_List);
                 return true;
             }
 
@@ -213,8 +215,10 @@ namespace TINY_Compiler
         Node Repeat_Statement()
         {
             Node repeatStatement = new Node("Repeat_Statement");
+            List <Node> Statements_List = new List<Node>();
+
             repeatStatement.Children.Add(match(Token_Class.Repeat));
-            repeatStatement.Children.Add(Statements());
+            repeatStatement.Children.Add(Statements(Statements_List));
             repeatStatement.Children.Add(match(Token_Class.Until));
             repeatStatement.Children.Add(Condition_Statement());
             return repeatStatement;
@@ -222,11 +226,12 @@ namespace TINY_Compiler
 
         Node If_Statement()
         {
-            Node conditionStatement = new Node("Condition_Statement");
+            Node conditionStatement = new Node("If_Statement");
+            List<Node> Statements_List = new List<Node>();
             conditionStatement.Children.Add(match(Token_Class.If));
             conditionStatement.Children.Add(Condition_Statement());
             conditionStatement.Children.Add(match(Token_Class.Then));
-            conditionStatement.Children.Add(Statements());
+            conditionStatement.Children.Add(Statements(Statements_List));
             conditionStatement.Children.Add(Elseif_Else_Statement());
             return conditionStatement;
         }
@@ -252,8 +257,9 @@ namespace TINY_Compiler
         Node Else_Statement()
         {
             Node elseStatement = new Node("Else_Statement");
+            List<Node> Statements_List = new List<Node>();
             elseStatement.Children.Add(match(Token_Class.Else));
-            elseStatement.Children.Add(Statements());
+            elseStatement.Children.Add(Statements(Statements_List));
             elseStatement.Children.Add(match(Token_Class.End));
             return elseStatement;
         }
@@ -261,10 +267,11 @@ namespace TINY_Compiler
         Node Else_If_Statement()
         {
             Node elseIfStatement = new Node("Else_If_Statement");
+            List<Node> Statements_List = new List<Node>();
             elseIfStatement.Children.Add(match(Token_Class.ElseIf));
             elseIfStatement.Children.Add(Condition_Statement());
             elseIfStatement.Children.Add(match(Token_Class.Then));
-            elseIfStatement.Children.Add(Statements());
+            elseIfStatement.Children.Add(Statements(Statements_List));
             elseIfStatement.Children.Add(Elseif_Else_Statement());
             return elseIfStatement;
         }
@@ -415,9 +422,10 @@ namespace TINY_Compiler
 
         bool Declaration_List_Dash()
         {
-            if (IsvalidToken(Token_Class.Idenifier))
+            if (IsvalidToken(Token_Class.Comma))
             {
-                Statements_List.Add(Declaration_And_Assigment());
+               Declaration_L_List.Add(match(Token_Class.Comma));
+                Declaration_L_List.Add(Declaration_And_Assigment());
                 Declaration_List_Dash();
                 return true;
             }
@@ -428,15 +436,24 @@ namespace TINY_Compiler
         Node Declaration_And_Assigment()
         {
             Node declarationAndAssigment = new Node("Declaration_And_Assigment");
-            if (IsvalidToken(Token_Class.Idenifier))
+            if (IsvalidToken(Token_Class.Idenifier) && IsvalidToken(Token_Class.AssigmentOp,1))
             {
-                declarationAndAssigment.Children.Add(match(Token_Class.Idenifier));
+                declarationAndAssigment.Children.Add(Assigment_In_Declaration());
             }
             else
             {
-                declarationAndAssigment.Children.Add(Assigment_Statement());
+                declarationAndAssigment.Children.Add(match(Token_Class.Idenifier));
             }
             return declarationAndAssigment;
+        }
+
+        Node Assigment_In_Declaration()
+        {
+            Node assigmentStatement = new Node("Assigment_In_Declaration");
+            assigmentStatement.Children.Add(match(Token_Class.Idenifier));
+            assigmentStatement.Children.Add(match(Token_Class.AssigmentOp));
+            assigmentStatement.Children.Add(Expression());
+            return assigmentStatement;
         }
 
         Node Datatype()
@@ -474,14 +491,21 @@ namespace TINY_Compiler
         Node Expression()
         {
             Node expression = new Node("Expression");
-            if (IsvalidToken(Token_Class.String))
+            if (IsvalidToken(Token_Class.Str))
             {
-                expression.Children.Add(match(Token_Class.String));
+                expression.Children.Add(match(Token_Class.Str));
             }
-            else if ((IsvalidToken(Token_Class.Number) || IsvalidToken(Token_Class.Idenifier)) && !(IsvalidToken(Token_Class.PlusOp ,1) || IsvalidToken(Token_Class.MinusOp, 1) || IsvalidToken(Token_Class.MultiplyOp, 1) || IsvalidToken(Token_Class.DivideOp, 1)))
-
+            else if (IsvalidToken(Token_Class.Number) || IsvalidToken(Token_Class.Idenifier))
             {
-                expression.Children.Add(Term());
+                if (IsvalidToken(Token_Class.PlusOp, 1) || IsvalidToken(Token_Class.MinusOp, 1) ||
+                    IsvalidToken(Token_Class.MultiplyOp, 1) || IsvalidToken(Token_Class.DivideOp, 1))
+                {
+                    expression.Children.Add(Equation());
+                }
+                else
+                {
+                    expression.Children.Add(Term());
+                }
             }
             else
             {
