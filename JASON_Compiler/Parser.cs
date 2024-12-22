@@ -29,7 +29,7 @@ namespace TINY_Compiler
         //List<Node> Statements_List;
         List<Node> Condition_Statement_List;
         List<Node> Declaration_L_List;
-        List<Node> Arithmetic_Operation_List;
+        //List<Node> Arithmetic_Operation_List;
         List<Node> Function_Call_List;
         List<Node> Identifier_L_List;
 
@@ -42,7 +42,7 @@ namespace TINY_Compiler
             //Statements_List = new List<Node>();
             Condition_Statement_List = new List<Node>();
             Declaration_L_List = new List<Node>();
-            Arithmetic_Operation_List = new List<Node>();
+           // Arithmetic_Operation_List = new List<Node>();
             Function_Call_List = new List<Node>();
             Identifier_L_List = new List<Node>();
 
@@ -83,7 +83,7 @@ namespace TINY_Compiler
                 Node functionStatement = new Node("Function_Statement");
                 functionStatement.Children.Add(Function_Declaration());
                 functionStatement.Children.Add(Function_Body());
-                functionStatement.Children.Add(Function_Declaration());
+                //functionStatement.Children.Add(Function_Declaration()); //there is potential error here
 
                 Function_Statement_List.Add(functionStatement);
                 Function_Statement();
@@ -97,12 +97,25 @@ namespace TINY_Compiler
         Node Function_Body()
         {
             Node functionBody = new Node("Function_Body");
-            List<Node> Statements_List = new List<Node>();
+            
             functionBody.Children.Add(match(Token_Class.LeftBracesOp));
-            functionBody.Children.Add(Statements(Statements_List));
+            functionBody.Children.Add(Function_Body_Dash());
             functionBody.Children.Add(Return_Statement());
             functionBody.Children.Add(match(Token_Class.RightBracesOp));
             return functionBody;
+        }
+
+        Node Function_Body_Dash()
+        {
+            if (IsvalidToken(Token_Class.Repeat) || IsvalidToken(Token_Class.If)
+                || IsvalidToken(Token_Class.Read) || IsvalidToken(Token_Class.Write)
+                    || IsvalidToken(Token_Class.Int) || IsvalidToken(Token_Class.Float) || IsvalidToken(Token_Class.String)
+                    || IsvalidToken(Token_Class.Idenifier))
+            {
+                List<Node> Statements_List = new List<Node>();
+                return Statements(Statements_List);
+            }
+            return null;
         }
 
         Node Function_Declaration()
@@ -517,13 +530,14 @@ namespace TINY_Compiler
         Node Equation()
         {
             Node equation = new Node("Equation");
+            List<Node> Arithmetic_Operation_List = new List<Node>();
             if (IsvalidToken(Token_Class.LParanthesis))
             {
                 equation.Children.Add(Bracket_Equation());
             }
             else
             {
-                equation.Children.Add(Arethemtic_Operation());
+                equation.Children.Add(Arethemtic_Operation(Arithmetic_Operation_List));
             }
             return equation;
         }
@@ -531,33 +545,33 @@ namespace TINY_Compiler
 
         Node Bracket_Equation()
         {
+            List<Node> Arithmetic_Operation_List = new List<Node>();
             Node bracketEquation = new Node("Bracket_Equation");
             bracketEquation.Children.Add(match(Token_Class.LParanthesis));
-            bracketEquation.Children.Add(Arethemtic_Operation());
+            bracketEquation.Children.Add(Arethemtic_Operation(Arithmetic_Operation_List));
             bracketEquation.Children.Add(match(Token_Class.RParanthesis));
             return bracketEquation;
         }
 
-        Node Arethemtic_Operation()
+        Node Arethemtic_Operation(List<Node> Arithmetic_Operation_List)
         {
             Node arethemticOperation = new Node("Arethemtic_Operation");
-            Arithmetic_Operation_List.Clear();
 
             arethemticOperation.Children.Add(Term_Or_Bracket());
 
-            if (Arethemtic_Operation_Dash())
+            if (Arethemtic_Operation_Dash(Arithmetic_Operation_List))
                 arethemticOperation.Children.AddRange(Arithmetic_Operation_List);
 
             return arethemticOperation;
         }
 
-        bool Arethemtic_Operation_Dash()
+        bool Arethemtic_Operation_Dash(List<Node> Arithmetic_Operation_List)
         {
             if (IsvalidToken(Token_Class.PlusOp) || IsvalidToken(Token_Class.MinusOp) || IsvalidToken(Token_Class.MultiplyOp) || IsvalidToken(Token_Class.DivideOp))
             {
                 Arithmetic_Operation_List.Add(Arethemtic_Operator());
                 Arithmetic_Operation_List.Add(Term_Or_Bracket());
-                Arethemtic_Operation_Dash();
+                Arethemtic_Operation_Dash(Arithmetic_Operation_List);
                 return true;
             }
 
@@ -639,11 +653,9 @@ namespace TINY_Compiler
             return functionCall;
         }
 
-        Node Function_Call_Dash()
+        Node Function_Call_Dash() //Numbers or function calls ?
         {
-            if (IsvalidToken(Token_Class.Idenifier))
-                return match(Token_Class.Idenifier);
-            return null;
+                return Identifier_List();
         }
 
         Node Identifier_List()
