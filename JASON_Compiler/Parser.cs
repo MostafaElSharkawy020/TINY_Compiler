@@ -504,11 +504,8 @@ namespace TINY_Compiler
         Node Expression()
         {
             Node expression = new Node("Expression");
-            if (IsvalidToken(Token_Class.Str))
-            {
-                expression.Children.Add(match(Token_Class.Str));
-            }
-            else if (IsvalidToken(Token_Class.Number) || IsvalidToken(Token_Class.Idenifier))
+         
+            if (IsvalidToken(Token_Class.Number) || IsvalidToken(Token_Class.Idenifier))
             {
                 if (IsvalidToken(Token_Class.PlusOp, 1) || IsvalidToken(Token_Class.MinusOp, 1) ||
                     IsvalidToken(Token_Class.MultiplyOp, 1) || IsvalidToken(Token_Class.DivideOp, 1))
@@ -522,7 +519,7 @@ namespace TINY_Compiler
             }
             else
             {
-                expression.Children.Add(Equation());
+                expression.Children.Add(match(Token_Class.Str));
             }
             return expression;
         }
