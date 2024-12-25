@@ -626,13 +626,13 @@ namespace TINY_Compiler
                 {
                     term.Children.Add(match(Token_Class.Number));
                 }
-                else if (Token_Class.Idenifier == TokenStream[InputPointer].token_type && !IsvalidToken(Token_Class.LParanthesis,1))
+                else if (Token_Class.Idenifier == TokenStream[InputPointer].token_type && IsvalidToken(Token_Class.LParanthesis,1))
                 {
-                    term.Children.Add(match(Token_Class.Idenifier));
+                    term.Children.Add(Function_Call());
                 }
                 else
                 {
-                    term.Children.Add(Function_Call());
+                    term.Children.Add(match(Token_Class.Idenifier));
                 }
             }
 
@@ -652,7 +652,10 @@ namespace TINY_Compiler
 
         Node Function_Call_Dash() //Numbers or function calls ?
         {
+            if(IsvalidToken(Token_Class.Number) || IsvalidToken(Token_Class.Idenifier))
                 return Identifier_List();
+
+            return null;
         }
 
         Node Identifier_List()
@@ -660,7 +663,7 @@ namespace TINY_Compiler
             Node identifierList = new Node("Identifier_List");
             Identifier_L_List.Clear();
 
-            identifierList.Children.Add(match(Token_Class.Idenifier));
+            identifierList.Children.Add(Term());
 
             if (Identifier_List_Dash())
                 identifierList.Children.AddRange(Identifier_L_List);
@@ -673,7 +676,7 @@ namespace TINY_Compiler
             if (IsvalidToken(Token_Class.Comma))
             {
                 Identifier_L_List.Add(match(Token_Class.Comma));
-                Identifier_L_List.Add(match(Token_Class.Idenifier));
+                Identifier_L_List.Add(Term());
                 Identifier_List_Dash();
                 return true;
             }
